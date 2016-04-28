@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DB Transaction Sample</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+    <form id="newCustomer" method="post" action="saveCustomer">
+    統一編號: <input type="text" name="uno" /><br>
+    公司名稱: <input type="text" name="name" /><br>
+    管理者姓名: <input type="text" name="username" /><br>
+    管理者帳號: <input type="text" name="account" /><br>
+    管理者密碼: <input type="text" name="password" /><br>
+        <input type="button" value="Submit" onclick="sendForm()"/>
+    </form>
+
+    <script type="text/javascript">
+        var xmlhttp;
+        function sendForm() {
+            xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange=state_Change();
+
+            var form = {'uno':document.getElementsByName('uno')[0].value, 'name':document.getElementsByName('name')[0].value,
+                'username':document.getElementsByName('username')[0].value, 'account':document.getElementsByName('account')[0].value,
+                'password':document.getElementsByName('password')[0].value};
+            var parameters = '?1=1';
+            for(var p in form) {
+                parameters+='&'+p+'='+form[p];
+            }
+            xmlhttp.open("POST", 'saveCustomer2'+parameters, true);
+            console.log(parameters);
+            xmlhttp.send();
+
+        }
+        function state_Change()
+        {
+            console.log(xmlhttp);
+            if (xmlhttp.readyState==4)
+            {// 4 = "loaded"
+                if (xmlhttp.status==200)
+                {// 200 = OK
+                    //console.log(xmlhttp);
+                }
+                else
+                {
+                    alert("Problem retrieving XML data");
+                }
+            }
+        }
+    </script>
+</body>
+</html>
