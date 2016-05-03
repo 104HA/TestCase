@@ -22,16 +22,6 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' , body: 'Welcome to TestCase'});
 });
 
-
-router.get('/connect/:uno', function(req, res, next) {
-  var sql = "select * from customer where UNO = ?";
-  var ans = Tsql.querySql(sql, [req.params.uno], function(rows){
-    //console.log(rows);
-    res.render('index',{title:'Express', body:"query db with aop ok : "+rows[0]['NAME']});
-  });
-
-});
-
 router.get('/case1',function(req, res, next) {
       res.render('case1');
 });
