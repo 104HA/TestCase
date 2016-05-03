@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var redis = require('../redisTest');
+//var redis = require('../redisTest');
 var transactionDao = require('../TransactionDAO');
 
 var Sequelize = require('sequelize');
@@ -14,6 +14,7 @@ var sequelize = new Sequelize('m031001', 'root', 'hychen123', {
     }
 });
 
+/*set connection pool*/
 transactionDao.setConnectionPool(sequelize);
 
 /* GET home page. */
@@ -21,34 +22,12 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' , body: 'Welcome to TestCase'});
 });
 
-/*router.get('/connect/:uno', function(req, res, next) {
-  //app.handle_database(req,res);
-  console.log(req.params.uno);
-  db.pool.getConnection(function(err,conn){
-    if(err) throw err;
-    conn.query("select * from customer where UNO = ?",[req.params.uno] ,function(err,rows){
-      if(err) throw err;
-      console.log(rows);
-      res.render('index',{title:'Express', body:"query db ok : "+rows[0]['NAME']});
-    });
-    conn.release();
-  });
-});*/
 
 router.get('/connect/:uno', function(req, res, next) {
   var sql = "select * from customer where UNO = ?";
   var ans = Tsql.querySql(sql, [req.params.uno], function(rows){
     //console.log(rows);
     res.render('index',{title:'Express', body:"query db with aop ok : "+rows[0]['NAME']});
-  });
-
-});
-
-router.get('/connect2/:id', function(req, res, next) {
-  var sql = "select * from customer where id = ?";
-  var ans = Tsql.querySql(sql, [req.params.id], function(rows){
-    //console.log(rows);
-    res.render('index',{title:'Express', body:"query db with aop ok : "+rows[0]['UNO']+" - "+rows[0]['NAME']});
   });
 
 });
@@ -63,7 +42,18 @@ router.get('/case1-2',function(req, res, next) {
 
 router.post('/saveCustomer',function(req,res){
     var body = req.body;
-    saveData(body, function(err,returnStr){
+
+/*  未包裝 */
+/*    saveDataWrap(body, function(err,returnStr){
+        if(err) res.render('result',{result:err});
+        else {
+            res.render('result',{result:returnStr});
+        }
+    });
+*/
+
+/* 已包裝*/
+    saveDataWrap(body, function(err,returnStr){
         if(err) res.render('result',{result:err});
         else {
             res.render('result',{result:returnStr});
@@ -71,12 +61,13 @@ router.post('/saveCustomer',function(req,res){
     });
 });
 
-router.get('/getRedisKeyValue/:account',function(req,res){
+/*router.get('/getRedisKeyValue/:account',function(req,res){
     redis.getRedisData(req.params.account, function(reply){
         res.render('result', {result:reply})
     });
-});
+});*/
 
+/*test ajax response*/
 router.post('/saveCustomer2',function(req,res){
     console.log(req.query);
     var body = req.query;
@@ -88,12 +79,10 @@ router.post('/saveCustomer2',function(req,res){
             res.end(JSON.stringify({ result: returnStr}));
         }
     });
-
-
 });
 
-/*function saveData(body, next) {
-    var result = null;
+/*call sequelize transaction*/
+function saveData(body, next) {
     sequelize.transaction({
         //isolationLevel:Sequelize.Transaction.ISOLATION_LEVELS.READ_UNCOMMITTED,
         //autoCommit:false
@@ -124,10 +113,11 @@ router.post('/saveCustomer2',function(req,res){
         next(err);
 
     });
-}*/
+}
 
-function saveData(body, next) {
-    var sqls = new Array();
+/*包裝sequelize*/
+function saveDataWrap(body, next) {
+    var sqls = [];
     sqls.push(['insert into customer(UNO, NAME, EMAIL, ENABLE, NOTES, LOCALE_CODE, CREATOR_ID, CREATE_DATE, MODIFIER_ID, MODIFY_DATE, CUST_TYPE, ADDR1) ' +
         'VALUES(?,?,?,1,123,\'zh_TW\',1,sysdate(),1,sysdate(),1,0)', [body.uno, body.name, body.account]]);
     sqls.push(['insert into admin (logon_id, logon_pwd, name) values(:account,:password,:name)', {account:body.account, password:body.password, name:body.username}]);

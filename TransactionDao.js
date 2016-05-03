@@ -11,9 +11,6 @@ TransactionDAO.setConnectionPool = function(connection) {
 };
 
 TransactionDAO._subTransaction = function(sql, param, t) {
-
-    console.log(sql);
-    console.log(param);
     return this.sequelize.query(sql,{transaction:t, replacements:param}).then(
         function() {
             if (this.count < this.size) {
@@ -30,10 +27,9 @@ TransactionDAO._subTransaction = function(sql, param, t) {
     );
 };
 
-TransactionDAO.executeTransaction = function(sqls, next){ //sqls: [[sql][parameters], [][]...]
+TransactionDAO.executeTransaction = function(sqls, next){ //sqls: [[sql][parameters]]
     this.count = 0;
     this.sqlArray = sqls;
-   // this.paramObjArray = params;
     this.size = this.sqlArray.length;
     this.sequelize.transaction({
         //isolationLevel:Sequelize.Transaction.ISOLATION_LEVELS.READ_UNCOMMITTED,
