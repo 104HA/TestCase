@@ -17,6 +17,8 @@
     "serve-favicon": "latest",
     "cookie-session":"latest",
     "redis":"latest",
-    "uuid":"latest"
+    "uuid":"latest",
+    "node-xlsx":"latest",
+    "exceljs":"latest"
   }
 }

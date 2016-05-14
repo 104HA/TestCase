@@ -13,6 +13,7 @@ var sequelize = new Sequelize('m031001', 'root', 'hychen123', {
         idle: 10000
     }
 });
+var excel = require('../Excel');
 
 /*set connection pool*/
 transactionDao.setConnectionPool(sequelize);
@@ -71,6 +72,22 @@ router.post('/saveCustomer2',function(req,res){
     });
 });
 
+/*excel test*/
+router.get('/readExcel',function(req,res){
+    excel.parseFile(function(err, data){
+        if(err) res.render('result','error');
+        console.log(data);
+        res.end();
+    });
+});
+
+router.get('/writeExcel',function(req,res){
+    excel.buildFile(function(err){
+        if(err) res.render('result','error');
+        res.end();
+    });
+});
+
 /*call sequelize transaction*/
 function saveData(body, next) {
     sequelize.transaction({
@@ -114,4 +131,5 @@ function saveDataWrap(body, next) {
     console.log(sqls);
     transactionDao.executeTransaction(sqls, next);
 }
+
 module.exports = router;
